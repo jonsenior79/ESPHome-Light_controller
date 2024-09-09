@@ -1,0 +1,557 @@
+esphome:
+  name: light_controller
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+  level: VERBOSE
+
+# Enable Home Assistant API
+api:
+  password: ""
+
+ota:
+  - platform: esphome
+    password: ""
+
+wifi:
+  ssid: "MELINET"
+  password: "THISISMYNETWORK"
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Light Controller"
+    password: "f2AtlDvxaEKg"
+
+captive_portal:
+
+# Time server
+time:
+  - platform: sntp
+    id: sntp_time
+    timezone: Europe/Paris
+    servers:
+     - 0.pool.ntp.org
+     - 1.pool.ntp.org
+     - 2.pool.ntp.org
+
+# Initialise MCP23017 devices.
+i2c:
+  sda: 2 #4
+  scl: 14 #5
+  scan: true
+
+pcf8574:
+  - id: 'mcp23017_switches'
+    address: 0x20
+    pcf8575: true
+
+mcp23017:
+#  - id: 'mcp23017_switches'
+#    address: 0x20
+  - id: 'mcp23017_circuits'
+    address: 0x21
+
+# Global definitions for lambdas
+globals:
+  - id: sw_count
+    type: unsigned int
+    restore_value: no
+    initial_value: '0'
+
+# Timer circuit for toilet light
+script:
+  - id: timer_toilet
+    then:
+      - light.turn_on: Circuit_D
+      - delay: 180s
+      - light.turn_off: Circuit_D
+
+# Individual inputs
+binary_sensor:
+    - platform: gpio
+      name: "Switch_A"
+      id: 'Switch_A'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 8
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_A
+
+    - platform: gpio
+      name: "Switch_B"
+      id: 'Switch_B'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 9
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_B
+
+    - platform: gpio
+      name: "Switch_C"
+      id: 'Switch_C'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 10
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_C
+
+    - platform: gpio
+      name: "Switch_D"
+      id: 'Switch_D'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 11
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+          - if:
+              condition:
+                lambda: |-
+                  auto time = id(sntp_time).now();
+                  return (time.hour < 20) && (time.hour > 7);
+              then:
+                - if:
+                    condition:
+                      light.is_off: Circuit_D
+                    then:
+                      - script.execute: timer_toilet
+                    else:
+                      - script.stop: timer_toilet
+                      - light.turn_off: Circuit_D
+              else:
+                - light.toggle: Circuit_D
+
+    - platform: gpio
+      name: "Switch_E"
+      id: 'Switch_E'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 12
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_E
+
+    - platform: gpio
+      name: "Switch_F"
+      id: 'Switch_F'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 13
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_F
+
+    - platform: gpio
+      name: "Switch_G"
+      id: 'Switch_G'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 14
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_G
+
+    - platform: gpio
+      name: "Switch_H"
+      id: 'Switch_H'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 15
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_H
+
+    - platform: gpio
+      name: "Switch_I"
+      id: 'Switch_I'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 7
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_I
+
+    - platform: gpio
+      name: "Switch_J"
+      id: 'Switch_J'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 6
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_J
+
+    - platform: gpio
+      name: "Switch_K"
+      id: 'Switch_K'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 5
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_K
+
+    - platform: gpio
+      name: "Switch_L"
+      id: 'Switch_L'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 4
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_L
+
+    - platform: gpio
+      name: "Switch_M"
+      id: 'Switch_M'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 3
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_M
+
+    - platform: gpio
+      name: "Switch_N"
+      id: 'Switch_N'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 2
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+#            - light.toggle: Circuit_N
+
+    - platform: gpio
+      name: "Switch_O"
+      id: 'Switch_O'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 1
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_O
+
+    - platform: gpio
+      name: "Switch_P"
+      id: 'Switch_P'
+      pin:
+        pcf8574: mcp23017_switches
+        number: 0
+        mode:
+            input: true
+        inverted: true
+      on_click:
+        min_length: 30ms
+        max_length: 500ms
+        then:
+            - light.toggle: Circuit_P
+
+# Outputs
+output:
+  - platform: gpio
+    id: 'Output_A'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 15
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_B'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 14
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_C'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 13
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_D'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 12
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_E'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 11
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_F'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 10
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_G'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 9
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_H'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 8
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_I'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 7
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_J'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 6
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_K'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 5
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_L'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 4
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_M'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 3
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_N'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 2
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_O'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 1
+      mode:
+        output: true
+      inverted: true
+
+  - platform: gpio
+    id: 'Output_P'
+    pin:
+      mcp23xxx: mcp23017_circuits
+      number: 0
+      mode:
+        output: true
+      inverted: true
+
+
+# Individual outputs
+light:
+  - platform: binary
+    id: 'Circuit_A'
+    output: Output_A
+    name: "Hall (GTL)"
+
+  - platform: binary
+    id: 'Circuit_B'
+    output: Output_B
+    name: "Bedroom 1"
+
+  - platform: binary
+    id: 'Circuit_C'
+    output: Output_C
+    name: "N/A"
+
+  - platform: binary
+    id: 'Circuit_D'
+    output: Output_D
+    name: "Toilet (House)"
+
+  - platform: binary
+    id: 'Circuit_E'
+    output: Output_E
+    name: "Living Room"
+
+  - platform: binary
+    id: 'Circuit_F'
+    output: Output_F
+    name: "Kitchen"
+
+  - platform: binary
+    id: 'Circuit_G'
+    output: Output_G
+    name: "Dining Room"
+
+  - platform: binary
+    id: 'Circuit_H'
+    output: Output_H
+    name: "Bathroom (House)"
+
+  - platform: binary
+    id: 'Circuit_I'
+    output: Output_I
+    name: "Bedroom 2"
+
+  - platform: binary
+    id: 'Circuit_J'
+    output: Output_J
+    name: "N/A"
+
+  - platform: binary
+    id: 'Circuit_K'
+    output: Output_K
+    name: "N/A"
+
+  - platform: binary
+    id: 'Circuit_L'
+    output: Output_L
+    name: "N/A"
+
+  - platform: binary
+    id: 'Circuit_M'
+    output: Output_M
+    name: "N/A"
+
+  - platform: binary
+    id: 'Circuit_N'
+    output: Output_N
+    name: "N/A"
+
+  - platform: binary
+    id: 'Circuit_O'
+    output: Output_O
+    name: "N/A"
+
+  - platform: binary
+    id: 'Circuit_P'
+    output: Output_P
+    name: "N/A"
+
